@@ -1,0 +1,6 @@
+config.yml
+roles.yml
+.env
+.idea/
+.vscode
+*.sqlite
