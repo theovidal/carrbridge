@@ -1,7 +1,6 @@
 package commands
 
 import (
-	"errors"
 	"fmt"
 
 	"github.com/bwmarrin/discordgo"
@@ -12,31 +11,30 @@ import (
 
 func Plug() *onyxcord.Command {
 	return &onyxcord.Command{
-		Description:    "Ajouter un salon dans un routeur",
-		Usage:          "plug <token>",
-		Show:           true,
 		ListenInPublic: true,
-		Execute: func(arguments []string, bot *onyxcord.Bot, message *discordgo.MessageCreate) (err error) {
-			bot.Client.ChannelMessageDelete(message.ChannelID, message.ID)
-
+		Execute: func(bot *onyxcord.Bot, interaction *discordgo.InteractionCreate) (err error) {
 			var router lib.Router
-			router, err = lib.GetRouterFromToken(bot, arguments[0])
+			router, err = lib.GetRouterFromToken(bot, interaction.Data.Options[0].StringValue())
 			if err != nil {
-				return errors.New("Le routeur ciblé est inconnu. Essayez d'utiliser une autre clé.")
+				return bot.UserError(interaction, "Le routeur ciblé est inconnu. Essayez d'utiliser une autre clé.")
 			}
 
-			err = lib.CreatePlug(bot, &router, message.ChannelID)
+			err = lib.CreatePlug(bot, &router, interaction.ChannelID)
 			if err != nil {
 				return
 			}
 
-			_, err = bot.Client.ChannelMessageSendEmbed(message.ChannelID, onyxcord.MakeEmbed(
-				bot.Config,
-				&discordgo.MessageEmbed{
-					Title:       fmt.Sprintf("🔌 Ce salon est désormais connecté au routeur `%s`!", router.Name),
-					Description: "Tous les messages qui y seront envoyés seront transférés sur les autres salons connectés, et inversement.",
-				}),
-			)
+			_ = bot.Client.InteractionRespond(interaction.Interaction, &discordgo.InteractionResponse{
+				Type: discordgo.InteractionResponseChannelMessageWithSource,
+				Data: &discordgo.InteractionApplicationCommandResponseData{
+					Embeds: []*discordgo.MessageEmbed{
+						bot.MakeEmbed(&discordgo.MessageEmbed{
+							Title:       fmt.Sprintf("🔌 Ce salon est désormais connecté au routeur `%s`!", router.Name),
+							Description: "Tous les messages qui y seront envoyés seront transférés sur les autres salons connectés, et inversement.",
+						}),
+					},
+				},
+			})
 			return
 		},
 	}
