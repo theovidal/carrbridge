@@ -1,0 +1,25 @@
+dev:
+  debug: false
+  version: 0.1
+  maintainer:
+    name: Théo Vidal
+    link: exybore@becauseofprog.fr
+bot:
+  name: Carrbridge [DEV]
+  id: 827998551049109505
+  illustration: https://cdn.discordapp.com/app-icons/827998551049109505/5bdd1e53ede5ce9348b320d5cea21696.png?size=128
+  website: https://github.com/theovidal/carrbridge
+  prefix: "-"
+  color: 7976509
+  error_color: 12000284
+categories:
+  default:
+    name: Non classé
+    emoji: x
+database:
+  address: localhost
+  port: 25450
+  database: bob
+  auth_source: bob
+assets:
+  routers_collection: routers
